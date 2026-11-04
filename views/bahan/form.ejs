@@ -1,0 +1,28 @@
+<%- include('../partials/head') %>
+<main class="wrap narrow">
+<%- include('../partials/flash') %>
+<% const edit = !!item; const val = (k, d='') => v(k, edit && item[k] != null ? item[k] : d); %>
+<div class="page-head"><div><p class="crumb">Data Master Bahan / <b><%= edit ? 'Ubah' : 'Tambah' %></b></p><h1><%= edit ? 'Ubah Bahan Baku' : 'Tambah Bahan Baku Baru' %></h1></div><a class="btn" href="/bahan">Batal</a></div>
+<form class="card formcard" method="post" action="<%= edit ? '/bahan/' + item.id_bahan : '/bahan' %>">
+  <div class="grid2">
+    <div class="field"><label>Nama Bahan Baku <i>*</i></label><input class="input" name="nama_bahan" value="<%= val('nama_bahan') %>" required></div>
+    <div class="field"><label>Kode Bahan</label><input class="input" name="kode_bahan" maxlength="10" value="<%= val('kode_bahan') %>" placeholder="Otomatis jika kosong (mis. BB-006)"></div>
+    <div class="field"><label>Kategori <i>*</i></label><select class="select" name="id_kategori" required><option value="">Pilih kategori</option><% kategori.forEach(k => { %><option value="<%= k.id_kategori %>" <%= String(val('id_kategori'))===String(k.id_kategori)?'selected':'' %>><%= k.nama_kategori %></option><% }) %></select></div>
+    <div class="field"><label>Pemasok Utama</label><select class="select" name="id_pemasok"><option value="">-</option><% pemasok.forEach(p => { %><option value="<%= p.id_pemasok %>" <%= String(val('id_pemasok'))===String(p.id_pemasok)?'selected':'' %>><%= p.nama_pemasok %></option><% }) %></select></div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label>Satuan Beli <i>*</i></label><input class="input" name="satuan_beli" value="<%= val('satuan_beli') %>" placeholder="kg, Karton, Botol" required></div>
+    <div class="field"><label>Satuan Pakai <i>*</i></label><input class="input" name="satuan_pakai" value="<%= val('satuan_pakai') %>" placeholder="gram, Liter, ml" required></div>
+    <div class="field"><label>Isi per Satuan Beli <i>*</i></label><input class="input" name="isi_per_satuan_beli" inputmode="decimal" value="<%= val('isi_per_satuan_beli','1') %>" required><p class="hint">Mis. 1 karton = 12 liter → isi 12</p></div>
+  </div>
+  <div class="grid3">
+    <% if (!edit) { %><div class="field"><label>Stok Awal (satuan pakai)</label><input class="input" name="stok_awal" inputmode="decimal" value="<%= v('stok_awal','0') %>"></div><% } %>
+    <div class="field"><label>Batas Minimum (Alert) <i>*</i></label><input class="input" name="stok_minimum" inputmode="decimal" value="<%= val('stok_minimum') %>" required></div>
+    <div class="field"><label>Harga Beli per Satuan Pakai (Rp)</label><input class="input" name="harga_beli" inputmode="decimal" value="<%= val('harga_beli','0') %>"></div>
+    <div class="field"><label>Masa Simpan (hari)</label><input class="input" name="masa_simpan_hari" inputmode="numeric" value="<%= val('masa_simpan_hari','180') %>"></div>
+  </div>
+  <div class="callout info"><span class="dot">i</span><div><b>Sistem Peringatan Otomatis Aktif</b><small>Ketika stok mencapai atau di bawah batas minimum, bahan ini otomatis muncul sebagai peringatan merah di Dashboard dan daftar "Perlu Dipesan".</small></div></div>
+  <div class="form-actions"><a class="btn" href="/bahan">Batal</a><button class="btn primary" type="submit"><%= edit ? 'Simpan Perubahan' : 'Simpan Bahan' %></button></div>
+</form>
+</main>
+<%- include('../partials/foot') %>

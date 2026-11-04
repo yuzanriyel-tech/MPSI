@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<main class="wrap">
+<%- include('../partials/flash') %>
+<div class="page-head"><div><h1>Manajemen Akun Pengguna</h1><p>Atur hak akses staf kafe Radjo: pengelola dan karyawan</p></div><button class="btn primary" data-open="dlg-form" data-action="/akun" data-judul="Tambah Akun" data-nama="" data-username="" data-role="karyawan" data-password="">+ Tambah Akun</button></div>
+<section class="card"><div class="tablewrap"><table class="table"><thead><tr><th>Pengguna</th><th>Role / Peran</th><th>Status Akun</th><th>Aksi</th></tr></thead><tbody>
+<% users.forEach(u => { const me = u.id_user === user.id; %><tr>
+  <td><div class="item"><span class="avatar <%= u.status_aktif ? (u.role==='pengelola'?'':'dark') : 'light' %>"><%= inisial(u.nama) %></span><div><b><%= u.nama %></b><small>@<%= u.username %> · ID: USR-<%= String(u.id_user).padStart(3,'0') %></small></div></div></td>
+  <td><span class="pill <%= u.role==='pengelola'?'green':'plain' %>"><%= u.role==='pengelola' ? 'Pengelola' : 'Karyawan' %></span></td>
+  <td><span class="pill <%= u.status_aktif ? 'ok' : 'bad' %>"><i></i><%= u.status_aktif ? 'Aktif' : 'Dinonaktifkan' %></span></td>
+  <td><% if (me) { %><em class="muted">Akun sendiri</em><% } else { %><div class="acts">
+    <button class="btn sm" data-open="dlg-form" data-action="/akun/<%= u.id_user %>" data-judul="Ubah Akun" data-nama="<%= u.nama %>" data-username="<%= u.username %>" data-role="<%= u.role %>" data-password="">Edit</button>
+    <% if (u.status_aktif) { %><button class="btn sm danger" data-open="dlg-off" data-action="/akun/<%= u.id_user %>/status" data-nama="<%= u.nama %>">Nonaktifkan</button>
+    <% } else { %><form method="post" action="/akun/<%= u.id_user %>/status"><button class="btn sm soft">Aktifkan</button></form><% } %></div><% } %></td></tr><% }) %>
+</tbody></table></div></section>
+
+<dialog id="dlg-form"><form method="post" data-fill="action">
+  <h3 data-fill="judul">Akun</h3><p class="sub">Password disimpan terenkripsi. Kosongkan password saat mengubah jika tidak diganti.</p>
+  <div class="field"><label>Nama Lengkap</label><input class="input" name="nama" data-fill="nama" required></div>
+  <div class="field"><label>Username</label><input class="input" name="username" data-fill="username" required></div>
+  <div class="field"><label>Password</label><input class="input" name="password" type="password" data-fill="password" minlength="6" autocomplete="new-password"></div>
+  <div class="field"><label>Peran</label><select class="select" name="role" data-fill="role"><option value="karyawan">Karyawan</option><option value="pengelola">Pengelola</option></select></div>
+  <div class="form-actions"><button class="btn" type="button" data-close>Batal</button><button class="btn primary" type="submit">Simpan</button></div>
+</form></dialog>
+
+<dialog id="dlg-off"><form method="post" data-fill="action">
+  <h3>Nonaktifkan akun?</h3><p class="sub"><b data-fill="nama"></b> tidak akan bisa masuk ke sistem. Riwayat transaksinya tetap tersimpan, dan akun bisa diaktifkan kembali.</p>
+  <div class="form-actions"><button class="btn" type="button" data-close>Batal</button><button class="btn danger" type="submit">Ya, Nonaktifkan</button></div>
+</form></dialog>
+</main>
+<%- include('../partials/foot') %>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= title %> · Radjo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<% if (user) { const mgr = user.role === 'pengelola'; %>
+<header class="nav">
+  <a class="brand" href="/"><span class="logo"></span>Radjo</a>
+  <nav>
+    <a class="nav-link <%= active==='dashboard'?'on':'' %>" href="/">Dashboard</a>
+    <div class="dd"><a class="nav-link <%= active==='bahan'?'on':'' %>" href="/bahan">Data Barang ▾</a>
+      <div class="dd-menu"><a href="/bahan">Data Master Bahan</a><a href="/bahan?status=perlu-dipesan">Perlu Dipesan Ulang</a><% if (mgr) { %><a href="/bahan/baru">Tambah Bahan Baru</a><% } %></div></div>
+    <div class="dd"><a class="nav-link <%= active==='transaksi'?'on':'' %>" href="/transaksi/masuk">Transaksi ▾</a>
+      <div class="dd-menu"><a href="/transaksi/masuk">Stok Masuk (Restock)</a><a href="/transaksi/keluar">Stok Keluar (Pemakaian)</a></div></div>
+    <% if (mgr) { %>
+    <a class="nav-link <%= active==='laporan'?'on':'' %>" href="/laporan">Laporan</a>
+    <div class="dd"><a class="nav-link <%= active==='akun'?'on':'' %>" href="/akun">Pengaturan ▾</a>
+      <div class="dd-menu"><a href="/akun">Akun Pengguna</a></div></div>
+    <% } %>
+  </nav>
+  <form class="search" action="/bahan" method="get"><span class="muted">⌕</span><input name="q" value="<%= q %>" placeholder="Cari bahan..." aria-label="Cari bahan"></form>
+  <div class="dd"><div class="me"><span class="avatar"><%= inisial(user.nama) %></span><div><b><%= user.nama %></b><small><%= user.role === 'pengelola' ? 'Pengelola' : 'Karyawan' %> ▾</small></div></div>
+    <div class="dd-menu" style="left:auto;right:0"><form method="post" action="/logout"><button type="submit">Keluar (Logout)</button></form></div></div>
+</header>
+<% } %>

@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<main class="wrap">
+<%- include('../partials/flash') %>
+<div class="page-head"><div><h1>Laporan & Riwayat Mutasi Stok</h1><p>Lacak histori pergerakan stok masuk dan keluar serta rekap stok untuk pemeriksaan awal bulan</p></div>
+  <a class="btn primary" href="/laporan/export.csv?<%= query %>">↓ Export CSV</a></div>
+<form class="card filters" method="get" action="/laporan" style="align-items:flex-end">
+  <div class="field" style="margin:0"><label>Dari</label><input class="input" type="date" name="dari" value="<%= f.dari %>"></div>
+  <div class="field" style="margin:0"><label>Sampai</label><input class="input" type="date" name="sampai" value="<%= f.sampai %>"></div>
+  <div class="field" style="margin:0"><label>Jenis Mutasi</label><select class="select" name="jenis"><option value="">Semua (Masuk & Keluar)</option><option value="masuk" <%= f.jenis==='masuk'?'selected':'' %>>Stok Masuk</option><option value="keluar" <%= f.jenis==='keluar'?'selected':'' %>>Stok Keluar</option></select></div>
+  <div class="field" style="margin:0"><label>Kategori</label><select class="select" name="kategori"><option value="">Semua Kategori</option><% kategori.forEach(k => { %><option value="<%= k.id_kategori %>" <%= String(f.kategori)===String(k.id_kategori)?'selected':'' %>><%= k.nama_kategori %></option><% }) %></select></div>
+  <div class="field" style="margin:0;flex:1;min-width:180px"><label>Cari No. Dokumen / Keterangan</label><input class="input" name="cari" value="<%= f.cari %>" placeholder="Ketik nomor atau bahan..."></div>
+  <button class="btn primary" type="submit">Terapkan</button>
+</form>
+
+<section class="card" style="margin-bottom:20px">
+  <div class="tablewrap"><table class="table"><thead><tr><th>Waktu</th><th>No. Transaksi</th><th>Nama Bahan Baku</th><th>Jenis</th><th>Perubahan</th><th>Petugas</th><th>Keterangan</th></tr></thead><tbody>
+  <% if (!rows.length) { %><tr><td colspan="7" class="empty">Data tidak ditemukan untuk filter ini.</td></tr><% } %>
+  <% rows.forEach(r => { %><tr>
+    <td class="muted"><%= tgl(r.tanggal) %><br><small><%= waktu(r.ts) %></small></td><td><b><%= r.no_transaksi %></b></td><td><b><%= r.nama_bahan %></b></td>
+    <td><span class="pill <%= r.jenis==='masuk'?'ok':'tan' %>"><%= r.jenis==='masuk' ? '↑ Stok Masuk' : '↓ Stok Keluar' %></span></td>
+    <td><b class="<%= r.jenis==='masuk'?'green':'red' %>"><%= r.jenis==='masuk'?'+':'-' %><%= num(r.jumlah) %> <%= r.satuan %></b></td><td class="muted"><%= r.petugas %></td><td class="muted"><%= r.ket %></td></tr><% }) %></tbody></table></div>
+  <div class="meta" style="grid-template-columns:repeat(3,1fr);margin:20px 0 0;background:#fbf1e6">
+    <div><small>Total transaksi periode</small><b><%= num(sum.n) %> mutasi</b></div><div><small>Total masuk</small><b class="green">+<%= num(sum.masuk) %></b></div><div><small>Total keluar</small><b class="red">-<%= num(sum.keluar) %></b></div></div>
+</section>
+
+<section class="card"><h3>Rekap Stok per Bahan Baku</h3><p class="sub">Semua waktu · dasar pemeriksaan stok awal bulan</p>
+  <div class="tablewrap"><table class="table"><thead><tr><th>Kode</th><th>Bahan</th><th>Saldo</th><th>Stok Minimum</th><th>Total Masuk</th><th>Total Keluar</th></tr></thead><tbody>
+  <% rekap.forEach(r => { %><tr><td class="muted"><%= r.kode_bahan %></td><td><b><%= r.nama_bahan %></b></td><td><b class="<%= r.stok_saat_ini<=r.stok_minimum?'red':'' %>"><%= num(r.stok_saat_ini) %> <%= r.satuan_pakai %></b></td><td class="muted"><%= num(r.stok_minimum) %></td><td class="green">+<%= num(r.total_masuk) %></td><td class="red">-<%= num(r.total_keluar) %></td></tr><% }) %></tbody></table></div></section>
+</main>
+<%- include('../partials/foot') %>

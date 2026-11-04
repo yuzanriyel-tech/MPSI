@@ -1,0 +1,27 @@
+<%- include('partials/head') %>
+<div class="login">
+  <section class="brandside">
+    <a class="brand" href="/"><span class="logo"></span>Radjo</a>
+    <div>
+      <span class="badge">CAFÉ MANAGEMENT</span>
+      <h1>Kelola Stok Kafe,<em>Jaga Kualitas Rasa.</em></h1>
+      <p>Sistem pemantauan inventaris terpadu untuk pengelola dan karyawan Cafe Radjo Roastery.</p>
+    </div>
+    <div class="foot">© 2026 Radjo Café Management System</div>
+  </section>
+  <section class="formside">
+    <div class="box">
+      <h2>Masuk ke Sistem</h2>
+      <p class="lead">Masukkan akun terdaftar Anda untuk mengakses inventaris</p>
+      <%- include('partials/flash') %>
+      <form method="post" action="/login" autocomplete="on">
+        <div class="field"><label for="username">Username</label><input class="input" id="username" name="username" value="<%= v('username') %>" required autofocus autocomplete="username"></div>
+        <div class="field"><label for="password">Kata Sandi</label><div class="pass"><input class="input" id="password" name="password" type="password" required autocomplete="current-password"><button type="button" id="toggle-pass">Tampilkan</button></div></div>
+        <div class="row"><label><input type="checkbox" name="remember" value="1"> Ingat sesi saya (7 hari)</label></div>
+        <button class="btn primary" type="submit">Masuk ke Dashboard →</button>
+      </form>
+      <p class="note">🔒 Kata sandi tersimpan terenkripsi (hash) · hak akses sesuai peran</p>
+    </div>
+  </section>
+</div>
+<%- include('partials/foot') %>

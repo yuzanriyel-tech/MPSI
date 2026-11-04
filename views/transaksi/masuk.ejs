@@ -1,0 +1,19 @@
+<%- include('../partials/head') %>
+<main class="wrap narrow">
+<%- include('../partials/flash') %>
+<div class="page-head"><div><p class="crumb">Transaksi / <b>Penerimaan Stok Masuk</b></p><h1>Penerimaan Stok Masuk</h1><p>Catat pasokan bahan baku yang diterima dari supplier ke gudang kafe Radjo</p></div><a class="btn" href="/transaksi/keluar">Lihat Stok Keluar →</a></div>
+<form class="card formcard" id="form-masuk" method="post" action="/transaksi/masuk">
+  <div class="meta"><div><small>No. Dokumen</small><b><%= noDok %></b></div><div><small>Tanggal Penerimaan</small><b><%= tgl(today) %></b></div><div><small>Petugas</small><b class="green"><%= user.nama %></b></div></div>
+  <div class="grid2">
+    <div class="field"><label for="pemasok">Pilih Pemasok (Supplier)</label><select class="select" id="pemasok" name="id_pemasok"><option value="">-</option><% pemasok.forEach(p => { %><option value="<%= p.id_pemasok %>" <%= String(v('id_pemasok'))===String(p.id_pemasok)?'selected':'' %>><%= p.nama_pemasok %></option><% }) %></select></div>
+    <div class="field"><label for="bahan">Pilih Bahan Baku <i>*</i></label><select class="select" id="bahan" name="id_bahan" required><option value="">Pilih bahan</option>
+      <% bahan.forEach(b => { %><option value="<%= b.id_bahan %>" data-beli="<%= b.satuan_beli %>" data-pakai="<%= b.satuan_pakai %>" data-isi="<%= b.isi_per_satuan_beli %>" data-stok="<%= b.stok_saat_ini %>" data-harga="<%= b.harga_beli %>" data-pemasok="<%= b.id_pemasok || '' %>" <%= String(v('id_bahan'))===String(b.id_bahan)?'selected':'' %>><%= b.nama_bahan %> (saat ini: <%= num(b.stok_saat_ini) %> <%= b.satuan_pakai %>)</option><% }) %></select></div>
+    <div class="field"><label for="jumlah">Jumlah Diterima <i>*</i></label><div class="unit"><input class="input" id="jumlah" name="jumlah_satuan_beli" inputmode="decimal" value="<%= v('jumlah_satuan_beli') %>" required><span class="tag" id="unit">-</span></div><p class="hint">Dalam satuan beli; sistem mengonversi ke satuan pakai otomatis.</p></div>
+    <div class="field"><label for="exp">Tanggal Kedaluwarsa (Exp Date) <i>*</i></label><input class="input" id="exp" type="date" name="tanggal_kedaluwarsa" min="<%= today %>" value="<%= v('tanggal_kedaluwarsa') %>" required></div>
+    <div class="field full"><label for="catatan">Catatan Penerimaan / No. Resi Pengiriman</label><input class="input" id="catatan" name="catatan" value="<%= v('catatan') %>"></div>
+  </div>
+  <div class="callout good" id="calc" hidden><span class="dot">✓</span><div><b>Kalkulasi Stok Otomatis</b><small id="calc-text"></small><small>Nilai aset inventaris bertambah sebesar: <span id="calc-val"></span></small></div></div>
+  <div class="form-actions"><a class="btn" href="/">Batal</a><button class="btn primary" type="submit">Konfirmasi Masuk</button></div>
+</form>
+</main>
+<%- include('../partials/foot') %>

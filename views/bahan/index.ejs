@@ -1,0 +1,35 @@
+<%- include('../partials/head') %>
+<main class="wrap">
+<%- include('../partials/flash') %>
+<% const mgr = user.role==='pengelola';
+   const link = (o) => '/bahan?' + new URLSearchParams(Object.fromEntries(Object.entries({...qs, ...o}).filter(([,v]) => v))).toString(); %>
+<div class="page-head"><div><h1>Data Master Bahan Baku</h1><p>Kelola katalog bahan, ambang batas minimum, dan spesifikasi satuan persediaan</p></div>
+  <% if (mgr) { %><a class="btn primary" href="/bahan/baru">+ Tambah Bahan</a><% } %></div>
+
+<form class="card filters" method="get" action="/bahan">
+  <input class="input" style="max-width:340px" name="q" value="<%= qs.q %>" placeholder="Cari nama bahan, kode, atau kategori...">
+  <a class="chip <%= !qs.kategori && !qs.status ? 'on':'' %>" href="/bahan">Semua (<%= c.semua %>)</a>
+  <% chips.forEach(k => { %><a class="chip <%= qs.kategori==k.id_kategori ? 'on':'' %>" href="<%= link({kategori:k.id_kategori, status:'', page:''}) %>"><%= k.nama_kategori %> (<%= k.n %>)</a><% }) %>
+  <a class="chip <%= qs.status==='perlu-dipesan' ? 'on':'' %>" href="<%= link({status:'perlu-dipesan', kategori:'', page:''}) %>">Perlu Dipesan (<%= c.pesan||0 %>)</a>
+  <% if (qs.kategori) { %><input type="hidden" name="kategori" value="<%= qs.kategori %>"><% } %><% if (qs.status) { %><input type="hidden" name="status" value="<%= qs.status %>"><% } %>
+</form>
+
+<section class="card">
+  <div class="tablewrap"><table class="table"><thead><tr><th>No</th><th>Bahan Baku</th><th>Kategori</th><th>Stok Saat Ini</th><th>Ambang Minimum</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+  <% if (!rows.length) { %><tr><td colspan="7" class="empty">Data tidak ditemukan.</td></tr><% } %>
+  <% rows.forEach((b,i) => { %><tr>
+    <td><%= (page-1)*per + i + 1 %></td>
+    <td><div class="item"><span class="thumb"><%= b.nama_bahan.slice(0,2).toUpperCase() %></span><div><b><%= b.nama_bahan %></b><small><%= b.kode_bahan %><%= b.nama_pemasok ? ' · ' + b.nama_pemasok : '' %></small></div></div></td>
+    <td class="muted"><%= b.nama_kategori %></td>
+    <td><b class="<%= b.status==='aman' ? 'green' : 'red' %>"><%= num(b.stok_saat_ini) %> <%= b.satuan_pakai %></b></td>
+    <td class="muted"><%= num(b.stok_minimum) %> <%= b.satuan_pakai %></td>
+    <td><%- badge(b.status) %></td>
+    <td><div class="acts"><a class="ico" href="/bahan/<%= b.id_bahan %>" title="Lihat">👁</a>
+      <% if (mgr) { %><a class="ico" href="/bahan/<%= b.id_bahan %>/edit" title="Ubah">✎</a>
+      <form method="post" action="/bahan/<%= b.id_bahan %>/hapus" data-confirm="Hapus bahan <%= b.nama_bahan %>?"><button class="ico d" title="Hapus">🗑</button></form><% } %></div></td>
+  </tr><% }) %></tbody></table></div>
+  <div class="pager"><span>Menampilkan <%= rows.length ? (page-1)*per+1 : 0 %>–<%= (page-1)*per + rows.length %> dari <%= n %> bahan baku</span>
+    <nav><% for (let p=1;p<=pages;p++) { %><a class="<%= p===page?'on':'' %>" href="<%= link({page:p}) %>"><%= p %></a><% } %></nav></div>
+</section>
+</main>
+<%- include('../partials/foot') %>

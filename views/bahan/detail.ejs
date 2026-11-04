@@ -1,0 +1,18 @@
+<%- include('../partials/head') %>
+<main class="wrap narrow">
+<%- include('../partials/flash') %>
+<div class="page-head"><div><p class="crumb">Data Master Bahan / <b><%= item.kode_bahan %></b></p><h1><%= item.nama_bahan %></h1><p><%= item.nama_kategori %><%= item.nama_pemasok ? ' · ' + item.nama_pemasok : '' %></p></div>
+  <div style="display:flex;gap:10px"><a class="btn" href="/bahan">Kembali</a><% if (user.role==='pengelola') { %><a class="btn primary" href="/bahan/<%= item.id_bahan %>/edit">Ubah</a><% } %></div></div>
+<section class="card" style="margin-bottom:20px"><div class="meta" style="margin:0">
+  <div><small>Stok saat ini</small><b class="<%= item.status==='aman'?'green':'red' %>"><%= num(item.stok_saat_ini) %> <%= item.satuan_pakai %></b></div>
+  <div><small>Batas minimum</small><b><%= num(item.stok_minimum) %> <%= item.satuan_pakai %></b></div>
+  <div><small>Status</small><%- badge(item.status) %></div>
+  <div><small>Satuan beli → pakai</small><b>1 <%= item.satuan_beli %> = <%= num(item.isi_per_satuan_beli) %> <%= item.satuan_pakai %></b></div>
+  <div><small>Harga per <%= item.satuan_pakai %></small><b><%= rp(item.harga_beli) %></b></div>
+  <div><small>Masa simpan</small><b><%= item.masa_simpan_hari %> hari</b></div></div></section>
+<section class="card"><h3>Batch Tersedia (urutan FEFO)</h3><p class="sub">Stok keluar mengambil dari batch dengan kedaluwarsa paling awal.</p>
+  <div class="tablewrap"><table class="table"><thead><tr><th>Kode Batch</th><th>Tgl Masuk</th><th>Kedaluwarsa</th><th>Sisa</th></tr></thead><tbody>
+  <% if (!batches.length) { %><tr><td colspan="4" class="empty">Tidak ada batch dengan sisa stok.</td></tr><% } %>
+  <% batches.forEach(b => { %><tr><td><b><%= b.kode_batch %></b></td><td><%= tgl(b.tanggal_masuk) %></td><td><%= tgl(b.tanggal_kedaluwarsa) %></td><td><b><%= num(b.sisa_stok) %> <%= item.satuan_pakai %></b></td></tr><% }) %></tbody></table></div></section>
+</main>
+<%- include('../partials/foot') %>

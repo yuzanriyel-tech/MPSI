@@ -1,0 +1,59 @@
+<%- include('partials/head') %>
+<main class="wrap">
+<%- include('partials/flash') %>
+<%
+  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const p2 = (n) => String(n).padStart(2,'0');
+  const tglStr = `${hari[now.getDay()]}, ${tgl(now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate()))} · ${p2(now.getHours())}.${p2(now.getMinutes())} WIB`;
+%>
+<div class="grid-top">
+  <section class="hero"><h1>Selamat Datang, <%= user.nama.split(' ')[0] %>!</h1><p>Kelola stok kafe Anda dengan lebih mudah dan efisien ✨</p><span class="date">📅 <%= tglStr %></span><span class="cup"></span></section>
+  <section class="alertcard">
+    <h3>⚠️ Stok Menipis <span class="pill tan"><%= (tot.menipis||0) + (tot.habis||0) %> item</span></h3>
+    <% if (menipisList.length) { %>
+      <ul><% menipisList.forEach(m => { %><li><span><%= m.nama_bahan %></span><b class="red"><%= num(m.stok_saat_ini) %> / <%= num(m.stok_minimum) %> <%= m.satuan_pakai %></b></li><% }) %></ul>
+    <% } else { %><p class="muted" style="margin:14px 0">Semua stok dalam kondisi aman.</p><% } %>
+    <a href="/bahan?status=perlu-dipesan"><b>Lihat Detail →</b></a>
+  </section>
+</div>
+
+<div class="stats">
+  <div class="card stat"><div class="ic g">▤</div><small>Total Stok</small><strong><%= num(tot.total) %> <span>Item</span></strong></div>
+  <div class="card stat"><div class="ic y">▲</div><small>Stok Menipis</small><strong><%= num(tot.menipis||0) %> <span>Item</span></strong></div>
+  <div class="card stat"><div class="ic r">⊘</div><small>Stok Habis</small><strong><%= num(tot.habis||0) %> <span>Item</span></strong></div>
+  <div class="card stat"><div class="ic t">▭</div><small>Nilai Stok</small><strong style="font-size:24px"><%= rp(tot.nilai) %></strong></div>
+</div>
+
+<div class="grid-mid">
+  <section class="card"><h3>Pergerakan Stok</h3><p class="sub">Total jumlah masuk dan keluar, 7 hari terakhir</p><div style="height:230px"><canvas id="chart"></canvas></div></section>
+  <section class="card"><h3>Barang Paling Cepat Habis</h3><p class="sub">Berdasarkan frekuensi pemakaian 30 hari</p>
+    <% if (!top.length) { %><p class="muted">Belum ada data pemakaian.</p><% } %>
+    <% top.forEach((t,i) => { %><div class="rank"><span class="no"><%= i+1 %></span><div class="bar"><div><%= t.nama_bahan %><span>Terpakai <%= t.kali %>x</span></div><div class="track"><i style="width:<%= t.pct %>%"></i></div></div></div><% }) %>
+  </section>
+  <div>
+    <section class="promo"><h3>Kelola Stok, Jaga Kualitas Rasa</h3><p>Pantau stok minimum setiap bulan.</p><a class="btn sm" style="background:var(--tan);border-color:var(--tan);color:var(--forest)" href="/bahan?status=perlu-dipesan">Lihat yang perlu dipesan →</a></section>
+    <section class="card" style="padding:20px"><h3>Aktivitas Terbaru</h3>
+      <% if (!aktivitas.length) { %><p class="muted" style="margin-top:10px">Belum ada transaksi.</p><% } %>
+      <% aktivitas.forEach(a => { %><div class="act"><span class="ai <%= a.jenis==='masuk'?'in':'out' %>"><%= a.jenis==='masuk'?'↑':'↓' %></span><div><b>Stok <%= a.nama_bahan %> <%= a.jenis==='masuk'?'bertambah':'berkurang' %></b><small class="<%= a.jenis==='masuk'?'green':'red' %>"><%= a.jenis==='masuk'?'+':'-' %><%= num(a.jumlah) %> <%= a.satuan %></small></div></div><% }) %>
+    </section>
+  </div>
+</div>
+
+<section class="card">
+  <div class="page-head" style="margin-bottom:14px"><div><h3 style="font-size:20px">Daftar Stok Barang</h3><p class="muted">Diurutkan dari yang paling mendekati batas minimum</p></div>
+    <div style="display:flex;gap:10px"><a class="btn" href="/bahan">Lihat Semua</a><% if (user.role==='pengelola') { %><a class="btn primary" href="/bahan/baru">+ Tambah Bahan</a><% } %></div></div>
+  <div class="tablewrap"><table class="table"><thead><tr><th>No</th><th>Nama Barang</th><th>Kategori</th><th>Stok Saat Ini</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+    <% stok.forEach((s,i) => { %><tr><td><%= i+1 %></td><td><div class="item"><span class="thumb"><%= s.nama_bahan.slice(0,2).toUpperCase() %></span><b><%= s.nama_bahan %></b></div></td><td class="muted"><%= s.nama_kategori %></td><td><b><%= num(s.stok_saat_ini) %> <%= s.satuan_pakai %></b></td><td><%- badge(s.status) %></td><td><a class="ico" href="/bahan/<%= s.id_bahan %>" title="Lihat">👁</a></td></tr><% }) %>
+  </tbody></table></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const d = <%- JSON.stringify(chart) %>;
+  if (window.Chart) new Chart(document.getElementById('chart'), { type: 'line',
+    data: { labels: d.labels, datasets: [
+      { label: 'Masuk', data: d.masuk, borderColor: '#435b48', backgroundColor: '#435b48', tension: .4, pointRadius: 3 },
+      { label: 'Keluar', data: d.keluar, borderColor: '#dfb587', backgroundColor: '#dfb587', tension: .4, pointRadius: 3 } ] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8 } } }, scales: { y: { beginAtZero: true, grid: { color: '#f0ebe3' } }, x: { grid: { display: false } } } } });
+</script>
+<%- include('partials/foot') %>
