@@ -34,9 +34,10 @@ public/                    css/style.css (token warna dari Figma), js/app.js
 |---|---|---|
 | figma-login | `GET /login` | UC-01, 02 |
 | figma-dashboard-frame | `GET /` | UC-03, 04 |
-| figma-master-barang | `GET /bahan` (+ `?status=perlu-dipesan`) | UC-06, 11 |
+| figma-master-barang | `GET /bahan` (+ `?status=perlu-dipesan`) | UC-06 |
+| (tidak ada frame; mengikuti laporan) | `GET /pemantauan?bulan=YYYY-MM` (Pengelola) | UC-11 |
 | figma-tambah-barang | `GET /bahan/baru`, `/bahan/:id/edit` | UC-06 |
-| figma-stok-masuk | `GET/POST /transaksi/masuk` | UC-07, 08 |
+| figma-stok-masuk | `GET/POST /transaksi/masuk` (tanggal diterima dapat diisi, termasuk mundur) | UC-07, 08 |
 | figma-stok-keluar | `GET/POST /transaksi/keluar` | UC-09, 10 |
 | figma-laporan-riwayat | `GET /laporan`, `/laporan/export.csv` | UC-12 |
 | figma-akun-pengguna + modal nonaktifkan | `GET /akun` | UC-05 |
@@ -50,6 +51,24 @@ public/                    css/style.css (token warna dari Figma), js/app.js
 - Kolom **Saldo Akhir** per transaksi, kartu tren %, dan sparkline dashboard belum dibuat.
 - Tambahan kolom di luar kamus data (dibutuhkan Figma): `bahan_baku.harga_beli`, `stok_masuk.catatan`, `created_at` di tabel transaksi.
 - Halaman **Pengaturan → Profil** (frame Figma) belum dibuat; menu Pengaturan hanya berisi Akun Pengguna.
+
+## Perubahan setelah review (frontend)
+
+- **UC-11** halaman *Pemantauan Stok Minimum* (`/pemantauan`, hanya Pengelola): pilih bulan; saldo dihitung dari riwayat transaksi sampai akhir bulan (atau hari ini), dibandingkan dengan stok minimum; daftar batch mendekati/melewati kedaluwarsa; pesan "Stok aman" bila kosong. Menu: Laporan ▾ → Pemantauan Stok Minimum.
+- **UC-07** form stok masuk punya input *Tanggal Barang Diterima* (tidak boleh masa depan); usulan tanggal kedaluwarsa otomatis dari masa simpan bahan; pemasok wajib dipilih.
+- **Nomor dokumen** seragam: `PO-YYYYMMDD-NNN` / `OUT-YYYYMMDD-NNN` (id transaksi). Form menampilkan "dibuat otomatis"; nomor sebenarnya muncul di notifikasi setelah simpan dan sama dengan yang ada di Laporan (`utils.noDokumen` ↔ `CONCAT` di `routes/laporan.js`). Batch tampil di kolom keterangan.
+- **Laporan**: ringkasan berupa jumlah transaksi (sebelumnya menjumlah satuan berbeda); transaksi yang dicatat mundur diberi penanda "dicatat <tanggal>".
+- **Akun**: username terkunci saat edit; password wajib hanya saat tambah akun.
+- Menambahkan `.env.example`.
+
+## Catatan untuk tim backend (belum dikerjakan; di luar lingkup frontend)
+
+1. Sesi akun yang dinonaktifkan masih aktif sampai logout: cek `status_aktif` per request di `middleware/auth.js`.
+2. `POST /akun/:id` belum memvalidasi `role` (nilai ENUM salah → error 500).
+3. `routes/auth.js`: `throw err` di callback `regenerate` → ganti `next(err)`.
+4. `utils.fail()` menyimpan seluruh `req.body` (termasuk password) ke session.
+5. Skema memuat kolom di luar Kamus Data (`harga_beli`, `catatan`, `created_at` ×2, `id_pemasok` nullable): samakan dengan laporan (Tabel D.20–D.22 + ERD) atau hapus.
+6. Belum ada CSRF dan pembatasan percobaan login; belum ada UI kelola kategori/pemasok.
 
 ## Catatan keamanan (prototype)
 

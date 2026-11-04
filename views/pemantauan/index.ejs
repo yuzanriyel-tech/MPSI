@@ -1,0 +1,55 @@
+<%- include('../partials/head') %>
+<main class="wrap">
+<%- include('../partials/flash') %>
+<div class="page-head"><div><h1>Pemantauan Stok Minimum Bulanan</h1><p>Pantau bahan baku yang berada di bawah stok minimum dan mendekati kedaluwarsa sebagai dasar pemesanan ulang</p></div></div>
+
+<form class="card filters toolbar" method="get" action="/pemantauan">
+  <div class="field"><label for="bulan">Pilih Periode (Bulan)</label><input class="input" id="bulan" type="month" name="bulan" value="<%= bulan %>" max="<%= bulanIni %>" required></div>
+  <button class="btn primary" type="submit">Tampilkan</button>
+  <% if (bulan !== bulanIni) { %><a class="btn" href="/pemantauan">Bulan ini</a><% } %>
+  <span class="muted" style="margin-left:auto;font-size:12px">Saldo dihitung dari riwayat transaksi sampai <b><%= tgl(batas) %></b></span>
+</form>
+
+<div class="meta" style="grid-template-columns:repeat(3,1fr)">
+  <div><small>Periode</small><b><%= namaBulan %></b></div>
+  <div><small>Bahan di bawah / sama dengan minimum</small><b class="<%= perluPesan.length ? 'red' : 'green' %>"><%= perluPesan.length %> dari <%= total %> bahan</b></div>
+  <div><small>Batch mendekati / melewati kedaluwarsa</small><b class="<%= kedaluwarsa.length ? 'red' : 'green' %>"><%= kedaluwarsa.length %> batch</b></div>
+</div>
+
+<section class="card">
+  <div class="section-head"><div><h3>Rekomendasi Pemesanan Ulang</h3><p class="sub">Bahan dengan saldo akhir <%= namaBulan %> kurang dari atau sama dengan stok minimum</p></div></div>
+  <% if (!perluPesan.length) { %>
+    <div class="callout good" style="margin:8px 0 0"><span class="dot">✓</span><div><b>Stok aman</b><small>Tidak ada bahan baku di bawah stok minimum pada <%= namaBulan %>.</small></div></div>
+  <% } else { %>
+  <div class="tablewrap"><table class="table"><thead><tr><th>No</th><th>Bahan Baku</th><th>Saldo Akhir</th><th>Stok Minimum</th><th>Kekurangan</th><th>Pemakaian Bulan Ini</th><th>Status</th></tr></thead><tbody>
+    <% perluPesan.forEach((b, i) => { %><tr>
+      <td><%= i + 1 %></td>
+      <td><div class="item"><span class="thumb"><%= b.nama_bahan.slice(0,2).toUpperCase() %></span><div><b><%= b.nama_bahan %></b><small><%= b.kode_bahan %><%= b.nama_pemasok ? ' · ' + b.nama_pemasok : '' %></small></div></div></td>
+      <td><b class="red"><%= num(b.saldo) %> <%= b.satuan_pakai %></b></td>
+      <td class="muted"><%= num(b.stok_minimum) %> <%= b.satuan_pakai %></td>
+      <td><b><%= num(b.kurang) %> <%= b.satuan_pakai %></b><br><small class="muted">≈ <%= num(b.kurangBeli) %> <%= b.satuan_beli %></small></td>
+      <td class="muted"><%= num(b.pakai_bulan) %> <%= b.satuan_pakai %></td>
+      <td><%- badge(b.status) %></td>
+    </tr><% }) %>
+  </tbody></table></div>
+  <p class="hint" style="margin-top:12px">Kekurangan dihitung sampai batas minimum saja; sesuaikan jumlah pesanan dengan pemakaian bulan berikutnya.</p>
+  <% } %>
+</section>
+
+<section class="card">
+  <div class="section-head"><div><h3>Mendekati Kedaluwarsa</h3><p class="sub">Batch yang masih memiliki sisa dan kedaluwarsa sampai akhir <%= namaBulan %></p></div></div>
+  <% if (!kedaluwarsa.length) { %>
+    <div class="callout good" style="margin:8px 0 0"><span class="dot">✓</span><div><b>Tidak ada batch bermasalah</b><small>Tidak ada batch dengan sisa stok yang kedaluwarsa sampai akhir <%= namaBulan %>.</small></div></div>
+  <% } else { %>
+  <div class="tablewrap"><table class="table"><thead><tr><th>Kode Batch</th><th>Bahan Baku</th><th>Kedaluwarsa</th><th>Sisa</th><th>Status</th></tr></thead><tbody>
+    <% kedaluwarsa.forEach(s => { %><tr>
+      <td><b><%= s.kode_batch %></b></td><td><%= s.nama_bahan %></td><td><%= tgl(s.tanggal_kedaluwarsa) %></td>
+      <td><b><%= num(s.sisa_stok) %> <%= s.satuan_pakai %></b></td>
+      <td><span class="pill <%= s.lewat ? 'bad' : 'tan' %>"><%= s.lewat ? 'Sudah kedaluwarsa' : 'Segera kedaluwarsa' %></span></td>
+    </tr><% }) %>
+  </tbody></table></div>
+  <p class="hint" style="margin-top:12px">Catat batch yang sudah kedaluwarsa lewat menu Stok Keluar dengan tujuan "Bahan Kedaluwarsa".</p>
+  <% } %>
+</section>
+</main>
+<%- include('../partials/foot') %>

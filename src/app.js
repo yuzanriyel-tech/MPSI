@@ -56,6 +56,7 @@ app.use('/', require('./routes/dashboard'));
 app.use('/bahan', require('./routes/bahan'));
 app.use('/transaksi', require('./routes/transaksi'));
 app.use('/laporan', require('./routes/laporan'));
+app.use('/pemantauan', require('./routes/pemantauan'));
 app.use('/akun', require('./routes/akun'));
 
 app.use((req, res) => res.status(404).render('error', { title: 'Tidak ditemukan', code: 404, message: 'Halaman yang Anda cari tidak ada.' }));

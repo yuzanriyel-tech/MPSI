@@ -4,7 +4,7 @@
 <% const p2 = (n) => String(n).padStart(2,'0'); const d = now; const iso = d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); %>
 <div class="page-head"><div><p class="crumb">Transaksi / <b>Pengeluaran Stok</b></p><h1>Pengeluaran Stok Bahan Baku</h1><p>Catat bahan yang diambil untuk racikan menu kafe atau bahan terbuang (waste)</p></div></div>
 <form class="card formcard" id="form-keluar" method="post" action="/transaksi/keluar">
-  <div class="meta"><div><small>No. Bukti Keluar</small><b><%= noDok %></b></div><div><small>Waktu Pengambilan</small><b><%= tgl(iso) %> · <%= p2(d.getHours()) %>.<%= p2(d.getMinutes()) %> WIB</b></div><div><small>Pencatat</small><b class="green"><%= user.nama %></b></div></div>
+  <div class="meta"><div><small>No. Bukti Keluar</small><b>Dibuat otomatis saat disimpan</b></div><div><small>Waktu Pengambilan</small><b><%= tgl(iso) %> · <%= p2(d.getHours()) %>.<%= p2(d.getMinutes()) %> WIB</b></div><div><small>Pencatat</small><b class="green"><%= user.nama %></b></div></div>
   <div class="grid2">
     <div class="field"><label for="bahan">Pilih Bahan Baku <i>*</i></label><select class="select" id="bahan" name="id_bahan" required><option value="">Pilih bahan</option>
       <% bahan.forEach(b => { %><option value="<%= b.id_bahan %>" data-stok="<%= b.stok_saat_ini %>" data-min="<%= b.stok_minimum %>" data-satuan="<%= b.satuan_pakai %>" data-nama="<%= b.nama_bahan %>" <%= String(v('id_bahan'))===String(b.id_bahan)?'selected':'' %>><%= b.nama_bahan %> (Tersedia: <%= num(b.stok_saat_ini) %> <%= b.satuan_pakai %>)</option><% }) %></select></div>

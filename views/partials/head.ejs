@@ -20,7 +20,8 @@
     <div class="dd"><a class="nav-link <%= active==='transaksi'?'on':'' %>" href="/transaksi/masuk">Transaksi ▾</a>
       <div class="dd-menu"><a href="/transaksi/masuk">Stok Masuk (Restock)</a><a href="/transaksi/keluar">Stok Keluar (Pemakaian)</a></div></div>
     <% if (mgr) { %>
-    <a class="nav-link <%= active==='laporan'?'on':'' %>" href="/laporan">Laporan</a>
+    <div class="dd"><a class="nav-link <%= (active==='laporan'||active==='pemantauan')?'on':'' %>" href="/laporan">Laporan ▾</a>
+      <div class="dd-menu"><a href="/laporan">Laporan &amp; Riwayat Mutasi</a><a href="/pemantauan">Pemantauan Stok Minimum</a></div></div>
     <div class="dd"><a class="nav-link <%= active==='akun'?'on':'' %>" href="/akun">Pengaturan ▾</a>
       <div class="dd-menu"><a href="/akun">Akun Pengguna</a></div></div>
     <% } %>

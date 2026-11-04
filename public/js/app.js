@@ -37,6 +37,22 @@ if (fm) {
   };
   pem.addEventListener('change', () => (pem.dataset.touched = 1));
   [sel, jml].forEach((e) => e.addEventListener('input', calc)); calc();
+
+  // Tanggal diterima -> batas minimum tanggal kedaluwarsa + usulan dari masa simpan bahan (bisa diubah)
+  const tgl = $('#tgl', fm), exp = $('#exp', fm), expHint = $('#exp-hint', fm);
+  const p2 = (n) => String(n).padStart(2, '0');
+  const plus = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+  if (exp.value) exp.dataset.touched = 1; // nilai hasil submit sebelumnya tidak ditimpa
+  const usul = () => {
+    const o = sel.selectedOptions[0];
+    if (tgl.value) exp.min = tgl.value;
+    if (o && o.dataset.masa && tgl.value && !exp.dataset.touched) {
+      exp.value = plus(tgl.value, +o.dataset.masa);
+      expHint.textContent = 'Diusulkan dari masa simpan ' + o.dataset.masa + ' hari; ubah sesuai kemasan.';
+    }
+  };
+  exp.addEventListener('input', () => (exp.dataset.touched = 1));
+  [sel, tgl].forEach((e) => e.addEventListener('input', usul)); usul();
 }
 
 // ---- Login: tampilkan/sembunyikan password ----
@@ -47,6 +63,13 @@ if (tp) tp.addEventListener('click', () => { const i = $('#password'); i.type = 
 document.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => {
   const d = document.getElementById(b.dataset.open);
   Object.entries(b.dataset).forEach(([k, v]) => { const el = d.querySelector('[data-fill="' + k + '"]'); if (el) { if (el.tagName === 'FORM') el.action = v; else if ('value' in el) el.value = v; else el.textContent = v; } });
+  if (d.id === 'dlg-form') {
+    const edit = b.dataset.mode === 'edit';
+    const u = d.querySelector('[name="username"]'), pw = d.querySelector('[name="password"]');
+    u.readOnly = edit; pw.required = !edit;
+    pw.placeholder = edit ? 'Kosongkan jika tidak diganti' : 'Minimal 6 karakter';
+    d.querySelector('#hint-username').hidden = !edit;
+  }
   d.showModal();
 }));
 document.querySelectorAll('dialog [data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));

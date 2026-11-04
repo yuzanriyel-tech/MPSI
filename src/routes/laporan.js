@@ -6,8 +6,8 @@ const { wrap, isoDate, addDays } = require('../utils');
 router.use(requireRole('pengelola'));
 
 const UNION = `
-  SELECT 'masuk' jenis, sm.id_stok_masuk id, sm.kode_batch no_transaksi, sm.tanggal_masuk tanggal, sm.created_at ts,
-         b.id_kategori, b.nama_bahan, b.satuan_pakai satuan, sm.jumlah_masuk jumlah, u.nama petugas, IFNULL(sm.catatan,'') ket
+  SELECT 'masuk' jenis, sm.id_stok_masuk id, CONCAT('PO-',DATE_FORMAT(sm.tanggal_masuk,'%Y%m%d'),'-',LPAD(sm.id_stok_masuk,3,'0')) no_transaksi, sm.tanggal_masuk tanggal, sm.created_at ts,
+         b.id_kategori, b.nama_bahan, b.satuan_pakai satuan, sm.jumlah_masuk jumlah, u.nama petugas, CONCAT('Batch ',sm.kode_batch,IFNULL(CONCAT(' - ',sm.catatan),'')) ket
   FROM stok_masuk sm JOIN bahan_baku b ON b.id_bahan=sm.id_bahan JOIN users u ON u.id_user=sm.id_user
   UNION ALL
   SELECT 'keluar', sk.id_stok_keluar, CONCAT('OUT-',DATE_FORMAT(sk.tanggal_keluar,'%Y%m%d'),'-',LPAD(sk.id_stok_keluar,3,'0')), sk.tanggal_keluar, sk.created_at,
@@ -29,7 +29,8 @@ router.get('/', wrap(async (req, res) => {
   const { f, where, params } = filters(req.query);
   const [rows] = await pool.query(`SELECT * FROM (${UNION}) t ${where} ORDER BY t.tanggal DESC, t.ts DESC, t.id DESC LIMIT 200`, params);
   const [[sum]] = await pool.query(
-    `SELECT COUNT(*) n, IFNULL(SUM(CASE WHEN jenis='masuk' THEN jumlah END),0) masuk, IFNULL(SUM(CASE WHEN jenis='keluar' THEN jumlah END),0) keluar FROM (${UNION}) t ${where}`, params);
+    // jumlah transaksi (bukan jumlah kuantitas) karena satuan tiap bahan berbeda
+    `SELECT COUNT(*) n, IFNULL(SUM(jenis='masuk'),0) masuk, IFNULL(SUM(jenis='keluar'),0) keluar FROM (${UNION}) t ${where}`, params);
   const [kategori] = await pool.query('SELECT * FROM kategori ORDER BY nama_kategori');
   const [rekap] = await pool.query(
     `SELECT b.kode_bahan, b.nama_bahan, b.satuan_pakai, b.stok_saat_ini, b.stok_minimum,

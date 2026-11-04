@@ -16,11 +16,11 @@
   <div class="tablewrap"><table class="table"><thead><tr><th>Waktu</th><th>No. Transaksi</th><th>Nama Bahan Baku</th><th>Jenis</th><th>Perubahan</th><th>Petugas</th><th>Keterangan</th></tr></thead><tbody>
   <% if (!rows.length) { %><tr><td colspan="7" class="empty">Data tidak ditemukan untuk filter ini.</td></tr><% } %>
   <% rows.forEach(r => { %><tr>
-    <td class="muted"><%= tgl(r.tanggal) %><br><small><%= waktu(r.ts) %></small></td><td><b><%= r.no_transaksi %></b></td><td><b><%= r.nama_bahan %></b></td>
+    <td class="muted"><%= tgl(r.tanggal) %><br><small><%= waktu(r.ts) %></small><% if (String(r.ts).slice(0,10) !== String(r.tanggal).slice(0,10)) { %><br><small title="Transaksi dicatat setelah tanggal kejadiannya">dicatat <%= tgl(r.ts) %></small><% } %></td><td><b><%= r.no_transaksi %></b></td><td><b><%= r.nama_bahan %></b></td>
     <td><span class="pill <%= r.jenis==='masuk'?'ok':'tan' %>"><%= r.jenis==='masuk' ? '↑ Stok Masuk' : '↓ Stok Keluar' %></span></td>
     <td><b class="<%= r.jenis==='masuk'?'green':'red' %>"><%= r.jenis==='masuk'?'+':'-' %><%= num(r.jumlah) %> <%= r.satuan %></b></td><td class="muted"><%= r.petugas %></td><td class="muted"><%= r.ket %></td></tr><% }) %></tbody></table></div>
   <div class="meta" style="grid-template-columns:repeat(3,1fr);margin:20px 0 0;background:#fbf1e6">
-    <div><small>Total transaksi periode</small><b><%= num(sum.n) %> mutasi</b></div><div><small>Total masuk</small><b class="green">+<%= num(sum.masuk) %></b></div><div><small>Total keluar</small><b class="red">-<%= num(sum.keluar) %></b></div></div>
+    <div><small>Total transaksi periode</small><b><%= num(sum.n) %> mutasi</b></div><div><small>Transaksi stok masuk</small><b class="green"><%= num(sum.masuk) %> transaksi</b></div><div><small>Transaksi stok keluar</small><b class="red"><%= num(sum.keluar) %> transaksi</b></div></div>
 </section>
 
 <section class="card"><h3>Rekap Stok per Bahan Baku</h3><p class="sub">Semua waktu · dasar pemeriksaan stok awal bulan</p>

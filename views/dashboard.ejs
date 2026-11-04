@@ -1,21 +1,21 @@
 <%- include('partials/head') %>
-<main class="wrap">
-<%- include('partials/flash') %>
-<%
-  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  const p2 = (n) => String(n).padStart(2,'0');
-  const tglStr = `${hari[now.getDay()]}, ${tgl(now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate()))} · ${p2(now.getHours())}.${p2(now.getMinutes())} WIB`;
-%>
-<div class="grid-top">
-  <section class="hero"><h1>Selamat Datang, <%= user.nama.split(' ')[0] %>!</h1><p>Kelola stok kafe Anda dengan lebih mudah dan efisien ✨</p><span class="date">📅 <%= tglStr %></span><span class="cup"></span></section>
-  <section class="alertcard">
-    <h3>⚠️ Stok Menipis <span class="pill tan"><%= (tot.menipis||0) + (tot.habis||0) %> item</span></h3>
-    <% if (menipisList.length) { %>
-      <ul><% menipisList.forEach(m => { %><li><span><%= m.nama_bahan %></span><b class="red"><%= num(m.stok_saat_ini) %> / <%= num(m.stok_minimum) %> <%= m.satuan_pakai %></b></li><% }) %></ul>
-    <% } else { %><p class="muted" style="margin:14px 0">Semua stok dalam kondisi aman.</p><% } %>
-    <a href="/bahan?status=perlu-dipesan"><b>Lihat Detail →</b></a>
-  </section>
-</div>
+  <main class="wrap">
+    <%- include('partials/flash') %>
+      <%
+        const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+        const p2 = (n) => String(n).padStart(2,'0');
+        const tglStr = `${hari[now.getDay()]}, ${tgl(now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate()))} · ${p2(now.getHours())}.${p2(now.getMinutes())} WIB`;
+      %>
+    <div class="grid-top">
+      <section class="hero"><h1>Selamat Datang, <%= user.nama.split(' ')[0] %>!</h1><p>Kelola stok kafe Anda dengan lebih mudah dan efisien ✨</p><span class="date">📅 <%= tglStr %></span><span class="cup"></span></section>
+      <section class="alertcard">
+        <h3>⚠️ Stok Menipis <span class="pill tan"><%= (tot.menipis||0) + (tot.habis||0) %> item</span></h3>
+          <% if (menipisList.length) { %>
+            <ul><% menipisList.forEach(m => { %><li><span><%= m.nama_bahan %></span><b class="red"><%= num(m.stok_saat_ini) %> / <%= num(m.stok_minimum) %> <%= m.satuan_pakai %></b></li><% }) %></ul>
+          <% } else { %><p class="muted" style="margin:14px 0">Semua stok dalam kondisi aman.</p><% } %>
+        <a href="/bahan?status=perlu-dipesan"><b>Lihat Detail →</b></a>
+      </section>
+    </div>
 
 <div class="stats">
   <div class="card stat"><div class="ic g">▤</div><small>Total Stok</small><strong><%= num(tot.total) %> <span>Item</span></strong></div>
@@ -31,7 +31,7 @@
     <% top.forEach((t,i) => { %><div class="rank"><span class="no"><%= i+1 %></span><div class="bar"><div><%= t.nama_bahan %><span>Terpakai <%= t.kali %>x</span></div><div class="track"><i style="width:<%= t.pct %>%"></i></div></div></div><% }) %>
   </section>
   <div>
-    <section class="promo"><h3>Kelola Stok, Jaga Kualitas Rasa</h3><p>Pantau stok minimum setiap bulan.</p><a class="btn sm" style="background:var(--tan);border-color:var(--tan);color:var(--forest)" href="/bahan?status=perlu-dipesan">Lihat yang perlu dipesan →</a></section>
+    <section class="promo"><h3>Kelola Stok, Jaga Kualitas Rasa</h3><p>Pantau stok minimum setiap bulan.</p><% if (user.role==='pengelola') { %><a class="btn sm" style="background:var(--tan);border-color:var(--tan);color:var(--forest)" href="/pemantauan">Buka Pemantauan Bulanan →</a><% } else { %><a class="btn sm" style="background:var(--tan);border-color:var(--tan);color:var(--forest)" href="/bahan?status=perlu-dipesan">Lihat yang perlu dipesan →</a><% } %></section>
     <section class="card" style="padding:20px"><h3>Aktivitas Terbaru</h3>
       <% if (!aktivitas.length) { %><p class="muted" style="margin-top:10px">Belum ada transaksi.</p><% } %>
       <% aktivitas.forEach(a => { %><div class="act"><span class="ai <%= a.jenis==='masuk'?'in':'out' %>"><%= a.jenis==='masuk'?'↑':'↓' %></span><div><b>Stok <%= a.nama_bahan %> <%= a.jenis==='masuk'?'bertambah':'berkurang' %></b><small class="<%= a.jenis==='masuk'?'green':'red' %>"><%= a.jenis==='masuk'?'+':'-' %><%= num(a.jumlah) %> <%= a.satuan %></small></div></div><% }) %>
